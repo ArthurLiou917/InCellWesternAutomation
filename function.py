@@ -43,7 +43,7 @@ def single_counter():  # single well counter
         plt.show()
 
     except:
-        pass
+        tkmsg.showinfo(title='Error', message='Not able to count dots')
 
 
 def well_detector(in_image):  # for plate counter, detects wells
@@ -103,9 +103,8 @@ def dot_detector(in_image):  # for plate counter, detects dots
                 cv2.drawContours(bw, [c], 0, 0, -1)
         # returns number of dots detected
         return dots, bw
-
     except:
-        pass
+        tkmsg.showinfo(title='Error', message='Not able to count plates')
 
 
 def plate_counter():  # black background
@@ -115,6 +114,7 @@ def plate_counter():  # black background
         # put image into well detector function to find wells aka "circles"
         circles = well_detector(image)
         list_dots = []
+        excel_dots.clear()
         if circles is not None:
             # convert the (x, y) coordinates and radius of the circles to integers
             circles = np.round(circles[0, :]).astype("int")
@@ -167,42 +167,49 @@ def plate_counter():  # black background
             for i in range(0, len(list_dots), 4):
                 sublist = list_dots[i:i + 4]
                 excel_dots.append(sublist)
-
             display_image(image)
         # no wells detected error message box
         else:
             tkmsg.showinfo(title='Error', message='No wells detected')
     except:
-        pass
+        tkmsg.showinfo(title='Error', message='Not able to count plates')
 
 
 def export_image():
-    data_sheet = pd.DataFrame(np.transpose(excel_dots))
-    data_sheet.to_excel(easygui.filesavebox(default='*.xlsx'))
-    tkmsg.showinfo(title='Saved Successfully', message='Numbers exported to Excel')
+    # button for exporting counted image to an excel file
+    try:
+        data_sheet = pd.DataFrame(np.transpose(excel_dots))
+        data_sheet.to_excel(easygui.filesavebox(default='*.xlsx'))
+        tkmsg.showinfo(title='Saved Successfully', message='Numbers exported to Excel')
+    except:
+        tkmsg.showinfo(title='Error', message='Not able to Export')
 
 
 def display_image(in_image):
-    helv36 = tkFont.Font(family='Helvetica', size=30, weight=tkFont.BOLD)
+    # create a window for counted image to be displayed as well as buttons
+    try:
+        helv36 = tkFont.Font(family='Helvetica', size=30, weight=tkFont.BOLD)
 
-    window = tK()
-    window.title('Counted Picture')
-    window.state('zoomed')
+        window = tK()
+        window.title('Counted Picture')
+        window.state('zoomed')
 
-    fig = plt.figure(figsize=(7, 7),dpi=100)
-    plt.imshow(in_image, cmap='gray')
-    plt.xticks([]), plt.yticks([])
+        fig = plt.figure(figsize=(7, 7),dpi=100)
+        plt.imshow(in_image, cmap='gray')
+        plt.xticks([]), plt.yticks([])
 
-    canvas = FigureCanvasTkAgg(fig, master=window)
-    canvas.draw()
-    canvas.get_tk_widget().pack()
+        canvas = FigureCanvasTkAgg(fig, master=window)
+        canvas.draw()
+        canvas.get_tk_widget().pack()
 
-    btn_close = tkbtn(window, text='Close!', command=window.destroy, width=50, font=helv36)
-    btn_close.pack(side='bottom')
-    btn_close.configure(width=50)
+        btn_close = tkbtn(window, text='Close!', command=window.destroy, width=50, font=helv36)
+        btn_close.pack(side='bottom')
+        btn_close.configure(width=50)
 
-    btn_export = tkbtn(window, text='Export to Excel!', command= lambda: export_image(), width=50, font=helv36)
-    btn_export.pack(side='bottom')
-    btn_export.configure(width=50)
+        btn_export = tkbtn(window, text='Export to Excel!', command= lambda: export_image(), width=50, font=helv36)
+        btn_export.pack(side='bottom')
+        btn_export.configure(width=50)
 
-    window.mainloop()
+        window.mainloop()
+    except:
+        tkmsg.showinfo(title='Error', message='Not able to display picture')
