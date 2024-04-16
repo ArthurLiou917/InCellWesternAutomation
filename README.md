@@ -1,5 +1,5 @@
 o	Required Python Packages
-	Open-cv
+ Open-cv
 	Easygui
 	Matplotlib
 	Pandas
